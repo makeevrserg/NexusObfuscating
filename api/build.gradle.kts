@@ -15,35 +15,10 @@ dependencies {
     implementation(libs.okio)
 }
 
-application {
-    mainClassName = "com.makeevrserg.sample.Main"
+val sourceJarTask by tasks.creating(Jar::class) {
+    from(File(rootDir, "README.md"))
+    archiveClassifier.set("source")
 }
-
-// val javadocJar = tasks.register("javadocJar", Jar::class) {
-//    archiveClassifier.set("javadoc")
-// }
-
-// configure<PublishingExtension> {
-//    publications.withType<MavenPublication> {
-//        artifact(javadocJar.get())
-//    }
-// }
-// configure<JavaPluginExtension> {
-//    kotlin.runCatching {
-//        withSourcesJar()
-//        withJavadocJar()
-//    }
-// }
-// tasks.withType<JavaCompile> {
-//    options.encoding = "UTF-8"
-// }
-// plugins.withId("org.gradle.maven-publish") {
-//    configure<PublishingExtension> {
-//        publications.register("mavenJava", MavenPublication::class) {
-//            from(components["java"])
-//        }
-//    }
-// }
 
 val projectName = name
 configure<PublishingExtension> {
@@ -52,7 +27,7 @@ configure<PublishingExtension> {
         maven {
             name = "maven-releases"
             isAllowInsecureProtocol = true
-            setUrl("http://178.32.231.56:7777/repository/maven-snapshots/")
+            setUrl("http://178.32.231.56:7777/repository/maven-releases/")
             credentials {
                 username = publishInfo.ossrhUsername
                 password = publishInfo.ossrhPassword
@@ -61,6 +36,7 @@ configure<PublishingExtension> {
     }
     publications.create<MavenPublication>("default")
     publications.withType<MavenPublication> {
+        artifact(sourceJarTask)
         pom {
             this.name.set(publishInfo.libraryName)
             this.description.set(projectInfo.description)

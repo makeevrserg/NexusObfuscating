@@ -39,6 +39,9 @@ dependencyResolutionManagement {
         maven("http://178.32.231.56:7777/repository/maven-snapshots/") {
             isAllowInsecureProtocol = true
         }
+        maven("http://178.32.231.56:7777/repository/maven-releases/") {
+            isAllowInsecureProtocol = true
+        }
     }
 }
 
