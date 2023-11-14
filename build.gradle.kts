@@ -8,7 +8,7 @@ buildscript {
 plugins {
     java
     `java-library`
-    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
 }
 
 apply(plugin = "ru.astrainteractive.gradleplugin.detekt")
