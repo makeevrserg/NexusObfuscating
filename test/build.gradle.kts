@@ -6,13 +6,9 @@ plugins {
 }
 
 dependencies {
-    // Coroutines
-    implementation(libs.kotlin.coroutines.coreJvm)
-    implementation(libs.kotlin.coroutines.core)
-    implementation(libs.okio)
     implementation("com.makeevrserg.sample:api:${projectInfo.versionString}")
 }
 
 application {
-    mainClassName = "com.makeevrserg.sample.Main"
+    mainClass.set("com.makeevrserg.sample.Main")
 }

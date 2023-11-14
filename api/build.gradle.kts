@@ -8,13 +8,6 @@ plugins {
     application
 }
 
-dependencies {
-    // Coroutines
-    implementation(libs.kotlin.coroutines.coreJvm)
-    implementation(libs.kotlin.coroutines.core)
-    implementation(libs.okio)
-}
-
 val sourceJarTask by tasks.creating(Jar::class) {
     from(File(rootDir, "README.md"))
     archiveClassifier.set("source")
