@@ -20,6 +20,10 @@ val sourceJarTask by tasks.creating(Jar::class) {
     archiveClassifier.set("source")
 }
 
+tasks.sourcesJar {
+    enabled = false
+}
+
 val projectName = name
 configure<PublishingExtension> {
     repositories {
