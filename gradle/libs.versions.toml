@@ -2,7 +2,7 @@
 # Kotlin
 kotlin-version = "1.9.0"
 kotlin-coroutines = "1.6.3"
-
+gradle-android = "7.4.2"
 [libraries]
 # Kotlin
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
@@ -13,3 +13,4 @@ okio = { module = "com.squareup.okio:okio", version.strictly = "3.6.0" }
 # Kotlin
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin-version" }
 kotlin-gradle = { id = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-version" }
+gradle-android = { id = "com.android.library", version.ref = "gradle-android" }

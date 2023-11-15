@@ -2,20 +2,32 @@ import ru.astrainteractive.gradleplugin.util.ProjectProperties.projectInfo
 import ru.astrainteractive.gradleplugin.util.ProjectProperties.publishInfo
 
 plugins {
-    kotlin("jvm")
+    kotlin("multiplatform")
+    id("com.android.library")
     id("org.gradle.maven-publish")
     id("signing")
-    application
 }
 
-val sourceJarTask by tasks.creating(Jar::class) {
-    from(File(rootDir, "README.md"))
-    archiveClassifier.set("source")
+kotlin {
+    jvm()
+    androidTarget {
+        publishLibraryVariants("release", "debug")
+        publishLibraryVariantsGroupedByFlavor = true
+    }
 }
 
-tasks.sourcesJar {
-    enabled = false
+android {
+    namespace = "${projectInfo.group}.api"
 }
+
+// val sourceJarTask by tasks.creating(Jar::class) {
+//    from(File(rootDir, "README.md"))
+//    archiveClassifier.set("source")
+// }
+
+// tasks.sourcesJar {
+//    enabled = false
+// }
 
 val projectName = name
 configure<PublishingExtension> {
@@ -33,13 +45,13 @@ configure<PublishingExtension> {
     }
     publications.create<MavenPublication>("default")
     publications.withType<MavenPublication> {
-        artifact(sourceJarTask)
+//        artifact(sourceJarTask)
         pom {
             this.name.set(publishInfo.libraryName)
             this.description.set(projectInfo.description)
             this.url.set(publishInfo.gitHubUrl)
             groupId = publishInfo.publishGroupId
-            artifactId = projectName
+//            artifactId = projectName
             licenses {
                 license {
                     this.name.set(publishInfo.license)
@@ -66,8 +78,3 @@ configure<PublishingExtension> {
         }
     }
 }
-
-// configure<SigningExtension> {
-//    useInMemoryPgpKeys(publishInfo.signingKeyId, publishInfo.signingKey, publishInfo.signingPassword)
-//    sign(extensions.getByType<PublishingExtension>().publications)
-// }

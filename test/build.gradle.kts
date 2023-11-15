@@ -1,14 +1,18 @@
 import ru.astrainteractive.gradleplugin.util.ProjectProperties.projectInfo
 
 plugins {
-    kotlin("jvm")
-    application
+    kotlin("multiplatform")
+    id("com.android.library")
 }
 
-dependencies {
-    implementation("com.makeevrserg.sample:api:${projectInfo.versionString}")
-}
-
-application {
-    mainClass.set("com.makeevrserg.sample.Main")
+kotlin {
+    jvm()
+    android()
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation("com.makeevrserg.sample:api:${projectInfo.versionString}")
+            }
+        }
+    }
 }
