@@ -15,6 +15,7 @@ cat nexus-data/admin.password
 ```bash
 ./gradlew :api:publishAndroid-obfuscatedPublicationToMaven-releasesRepository
 ./gradlew :api:publishJvm-obfuscatedPublicationToMaven-releasesRepository
+./gradlew :api:publishKotlinMultiplatformPublicationToMaven-releasesRepository
 ```
 
 ### Check published repo is accessible
