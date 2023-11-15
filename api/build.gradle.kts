@@ -9,6 +9,7 @@ plugins {
 }
 
 kotlin {
+    withSourcesJar(false)
     jvm()
     androidTarget {
         publishLibraryVariants("release", "debug")
