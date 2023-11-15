@@ -20,17 +20,12 @@ kotlin {
 android {
     namespace = "${projectInfo.group}.api"
 }
+// Place custom sources into source.jar
+val sourceJarTask by tasks.creating(Jar::class) {
+    from(File(rootDir, "README.md"))
+    archiveClassifier.set("source")
+}
 
-// val sourceJarTask by tasks.creating(Jar::class) {
-//    from(File(rootDir, "README.md"))
-//    archiveClassifier.set("source")
-// }
-
-// tasks.sourcesJar {
-//    enabled = false
-// }
-
-val projectName = name
 configure<PublishingExtension> {
     repositories {
 
@@ -46,13 +41,12 @@ configure<PublishingExtension> {
     }
     publications.create<MavenPublication>("default")
     publications.withType<MavenPublication> {
-//        artifact(sourceJarTask)
+        artifact(sourceJarTask)
         pom {
             this.name.set(publishInfo.libraryName)
             this.description.set(projectInfo.description)
             this.url.set(publishInfo.gitHubUrl)
             groupId = publishInfo.publishGroupId
-//            artifactId = projectName
             licenses {
                 license {
                     this.name.set(publishInfo.license)
