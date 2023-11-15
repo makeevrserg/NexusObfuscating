@@ -8,6 +8,7 @@ plugins {
 kotlin {
     jvm()
     android()
+    ios()
     sourceSets {
         val commonMain by getting {
             dependencies {

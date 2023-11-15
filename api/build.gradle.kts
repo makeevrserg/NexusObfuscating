@@ -11,6 +11,7 @@ plugins {
 kotlin {
     withSourcesJar(false)
     jvm()
+    ios()
     androidTarget {
         publishLibraryVariants("release", "debug")
         publishLibraryVariantsGroupedByFlavor = true
