@@ -8,11 +8,20 @@ plugins {
 kotlin {
     jvm()
     android()
-    ios()
     sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation("com.makeevrserg.sample:api:${projectInfo.versionString}")
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                implementation("com.makeevrserg.sample:api-android:${projectInfo.versionString}")
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                implementation("com.makeevrserg.sample:api-jvm:${projectInfo.versionString}")
             }
         }
     }

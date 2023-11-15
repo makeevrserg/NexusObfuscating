@@ -2,6 +2,7 @@ buildscript {
     dependencies {
         classpath("ru.astrainteractive.gradleplugin:convention:0.4.0")
         classpath("ru.astrainteractive.gradleplugin:android:0.4.0")
+        classpath("com.guardsquare:proguard-gradle:7.4.0")
     }
 }
 
@@ -16,7 +17,6 @@ apply(plugin = "ru.astrainteractive.gradleplugin.root.info")
 
 subprojects.forEach {
     it.apply(plugin = "ru.astrainteractive.gradleplugin.dokka.module")
-//    it.apply(plugin = "ru.astrainteractive.gradleplugin.publication")
     it.plugins.withId("org.jetbrains.kotlin.jvm") {
         it.apply(plugin = "ru.astrainteractive.gradleplugin.java.core")
     }
