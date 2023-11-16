@@ -13,14 +13,10 @@ cat nexus-data/admin.password
 ### Publish obfuscated module
 
 ```bash
-# Build jar files meant to be obfuscated
-./gradlew :api:bundleDebugAar
-./gradlew :api:bundleReleaseAar
-./gradlew :api:jvmJar
-# Obfuscate
-./gradlew :api:OBFUSCATING_TASK_NAME
 # Next publish
-./gradlew :api:publish
+./gradlew :api:publishAndroid-obfuscatedPublicationToMaven-releasesRepository
+./gradlew :api:publishJvm-obfuscatedPublicationToMaven-releasesRepository
+./gradlew :api:publishKotlinMultiplatformPublicationToMaven-releasesRepository
 ```
 
 ### Check published repo is accessible
