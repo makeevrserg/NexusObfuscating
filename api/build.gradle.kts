@@ -33,27 +33,42 @@ val rules = file("proguard-rules.pro")
 
 val obfuscateTask = tasks.register(OBFUSCATING_TASK_NAME, proguard.gradle.ProGuardTask::class) {
     verbose()
-    kotlin.targets.map(KotlinTarget::artifactsTaskName)
-        .mapNotNull { tasks.findByName(it) }
-        .takeIf(Collection<*>::isNotEmpty)
-        ?.let { dependsOn(it) }
-
     kotlin
         .targets
         .forEach {
             val targetName = it.targetName.toLowerCase()
             when (it) {
                 is KotlinJvmTarget -> {
-                    injars("$buildDir/libs/${project.name}-$targetName-$version.jar")
-                    outjars("$buildDir/libs/obfuscated/${project.name}-$targetName-$version.jar")
+                    val original = "$buildDir/libs/${project.name}-$targetName-$version.jar"
+                    val originalRenamed =
+                        file("$buildDir/libs/orig-${project.name}-$targetName-$version.jar")
+                    originalRenamed.parentFile.mkdirs()
+                    file(original).renameTo(originalRenamed)
+                    injars(originalRenamed)
+                    outjars(file(original))
                 }
 
                 is KotlinAndroidTarget -> {
-                    injars("$buildDir/outputs/aar/${project.name}-debug.aar")
-                    outjars("$buildDir/outputs/aar/obfuscated/${project.name}-debug.aar")
 
-                    injars("$buildDir/outputs/aar/${project.name}-release.aar")
-                    outjars("$buildDir/outputs/aar/obfuscated/${project.name}-release.aar")
+                    run {
+                        val original = "$buildDir/outputs/aar/${project.name}-debug.aar"
+                        val originalRenamed =
+                            file("$buildDir/outputs/aar/orig-${project.name}-debug.aar")
+                        originalRenamed.parentFile.mkdirs()
+                        file(original).renameTo(originalRenamed)
+                        injars(originalRenamed)
+                        outjars(file(original))
+                    }
+
+                    run {
+                        val original = "$buildDir/outputs/aar/${project.name}-release.aar"
+                        val originalRenamed =
+                            file("$buildDir/outputs/aar/orig-${project.name}-release.aar")
+                        originalRenamed.parentFile.mkdirs()
+                        file(original).renameTo(originalRenamed)
+                        injars(originalRenamed)
+                        outjars(file(original))
+                    }
                 }
             }
         }
@@ -73,11 +88,19 @@ val obfuscateTask = tasks.register(OBFUSCATING_TASK_NAME, proguard.gradle.ProGua
 
 // Setup task dependencies
 afterEvaluate {
-    obfuscateTask.dependsOn(tasks.getByName("bundleDebugAar"))
-    obfuscateTask.dependsOn(tasks.getByName("bundleReleaseAar"))
-    obfuscateTask.dependsOn(tasks.getByName("jvmJar"))
-}
+    kotlin.targets.map(KotlinTarget::artifactsTaskName)
+        .mapNotNull { tasks.findByName(it) }
+        .map { tasks.named(it.name) }
+        .takeIf(Collection<*>::isNotEmpty)
+        ?.let { obfuscateTask.dependsOn(it) }
 
+    obfuscateTask.dependsOn(
+        tasks.named("bundleDebugAar"),
+        tasks.named("bundleReleaseAar"),
+        tasks.named("jvmJar")
+    )
+    tasks.publish.dependsOn(obfuscateTask)
+}
 // Publishing ------------------------------------------------------------
 
 publishing {
@@ -90,61 +113,6 @@ publishing {
                 username = publishInfo.ossrhUsername
                 password = publishInfo.ossrhPassword
             }
-        }
-    }
-
-    publications.create<MavenPublication>("jvm-obfuscated") {
-        val artifactName = "${project.name}-jvm-${project.version}.jar"
-        artifact("${project.buildDir}/libs/obfuscated/$artifactName") {
-            artifactId = "api-jvm"
-            builtBy(obfuscateTask)
-            extension = "jar"
-            classifier = "jar"
-        }
-        pom.withXml {
-            val dependencies = asNode().appendNode("dependencies")
-            fun addDependency(dep: Dependency) {
-                val depNode = dependencies.appendNode("dependency")
-                depNode.appendNode("groupId", dep.group)
-                depNode.appendNode("artifactId", dep.name)
-                depNode.appendNode("version", dep.version)
-                depNode.appendNode("scope", "compile") //todo
-            }
-            configurations.implementation.get().allDependencies.forEach(::addDependency)
-            configurations.compileOnly.get().allDependencies.forEach(::addDependency)
-            configurations.commonMainApi.get().allDependencies.forEach(::addDependency)
-            configurations.commonMainImplementation.get().allDependencies.forEach(::addDependency)
-            configurations.commonMainCompileOnly.get().allDependencies.forEach(::addDependency)
-        }
-    }
-
-    publications.create<MavenPublication>("android-obfuscated") {
-        val debugArtifactName = "${project.name}-debug.aar"
-        val releaseArtifactName = "${project.name}-release.aar"
-        artifact("$buildDir/outputs/aar/obfuscated/$debugArtifactName") {
-            artifactId = "api-android"
-            classifier = "debug"
-            builtBy(obfuscateTask)
-        }
-        artifact("$buildDir/outputs/aar/obfuscated/$releaseArtifactName") {
-            artifactId = "api-android"
-            classifier = "release"
-            builtBy(obfuscateTask)
-        }
-        pom.withXml {
-            val dependencies = asNode().appendNode("dependencies")
-            fun addDependency(dep: Dependency) {
-                val depNode = dependencies.appendNode("dependency")
-                depNode.appendNode("groupId", dep.group)
-                depNode.appendNode("artifactId", dep.name)
-                depNode.appendNode("version", dep.version)
-                depNode.appendNode("scope", "compile") //todo
-            }
-            configurations.implementation.get().allDependencies.forEach(::addDependency)
-            configurations.compileOnly.get().allDependencies.forEach(::addDependency)
-            configurations.commonMainApi.get().allDependencies.forEach(::addDependency)
-            configurations.commonMainImplementation.get().allDependencies.forEach(::addDependency)
-            configurations.commonMainCompileOnly.get().allDependencies.forEach(::addDependency)
         }
     }
 
