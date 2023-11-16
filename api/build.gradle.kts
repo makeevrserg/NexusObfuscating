@@ -93,7 +93,7 @@ publishing {
         }
     }
 
-    publications.register<MavenPublication>("jvm-obfuscated") {
+    publications.create<MavenPublication>("jvm-obfuscated") {
         val artifactName = "${project.name}-jvm-${project.version}.jar"
         artifact("${project.buildDir}/libs/obfuscated/$artifactName") {
             artifactId = "api-jvm"
@@ -101,9 +101,24 @@ publishing {
             extension = "jar"
             classifier = "jar"
         }
+        pom.withXml {
+            val dependencies = asNode().appendNode("dependencies")
+            fun addDependency(dep: Dependency) {
+                val depNode = dependencies.appendNode("dependency")
+                depNode.appendNode("groupId", dep.group)
+                depNode.appendNode("artifactId", dep.name)
+                depNode.appendNode("version", dep.version)
+                depNode.appendNode("scope", "compile") //todo
+            }
+            configurations.implementation.get().allDependencies.forEach(::addDependency)
+            configurations.compileOnly.get().allDependencies.forEach(::addDependency)
+            configurations.commonMainApi.get().allDependencies.forEach(::addDependency)
+            configurations.commonMainImplementation.get().allDependencies.forEach(::addDependency)
+            configurations.commonMainCompileOnly.get().allDependencies.forEach(::addDependency)
+        }
     }
 
-    publications.register<MavenPublication>("android-obfuscated") {
+    publications.create<MavenPublication>("android-obfuscated") {
         val debugArtifactName = "${project.name}-debug.aar"
         val releaseArtifactName = "${project.name}-release.aar"
         artifact("$buildDir/outputs/aar/obfuscated/$debugArtifactName") {
@@ -115,6 +130,21 @@ publishing {
             artifactId = "api-android"
             classifier = "release"
             builtBy(obfuscateTask)
+        }
+        pom.withXml {
+            val dependencies = asNode().appendNode("dependencies")
+            fun addDependency(dep: Dependency) {
+                val depNode = dependencies.appendNode("dependency")
+                depNode.appendNode("groupId", dep.group)
+                depNode.appendNode("artifactId", dep.name)
+                depNode.appendNode("version", dep.version)
+                depNode.appendNode("scope", "compile") //todo
+            }
+            configurations.implementation.get().allDependencies.forEach(::addDependency)
+            configurations.compileOnly.get().allDependencies.forEach(::addDependency)
+            configurations.commonMainApi.get().allDependencies.forEach(::addDependency)
+            configurations.commonMainImplementation.get().allDependencies.forEach(::addDependency)
+            configurations.commonMainCompileOnly.get().allDependencies.forEach(::addDependency)
         }
     }
 
