@@ -1,5 +1,4 @@
 pluginManagement {
-    includeBuild("convention")
     repositories {
         google()
         mavenLocal()
@@ -19,11 +18,11 @@ dependencyResolutionManagement {
             isAllowInsecureProtocol = true
         }
     }
+    versionCatalogs { create("libs") { from(files("../gradle/libs.versions.toml")) } }
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "NexusObfuscating"
+rootProject.name = "convention"
 
-include("api")
-include("test")
+include("plugin")
