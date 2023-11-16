@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.tasks.factory.dependsOn
+import com.android.build.gradle.tasks.BundleAar
 import com.makeevrserg.sample.Constants.OBFUSCATING_TASK_NAME
 import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
@@ -12,57 +13,45 @@ plugins {
 val rules = file("proguard-rules.pro")
 
 val obfuscateTask = tasks.register(OBFUSCATING_TASK_NAME, proguard.gradle.ProGuardTask::class) {
-    verbose()
-    kotlin
-        .targets
-        .forEach {
-            val targetName = it.targetName.toLowerCase()
-            when (it) {
-                is KotlinJvmTarget -> {
-                    val original = "$buildDir/libs/${project.name}-$targetName-$version.jar"
-                    val originalRenamed =
-                        file("$buildDir/libs/orig-${project.name}-$targetName-$version.jar")
-                    originalRenamed.parentFile.mkdirs()
-                    file(original).renameTo(originalRenamed)
-                    injars(originalRenamed)
-                    outjars(file(original))
-                }
+    kotlin.targets.forEach {
+        fun obfuscateOutFile(task: Task) {
+            val jars = task.outputs.files
+            injars(jars)
+            val outJars = jars.map {
+                File(it.parentFile, "obf-${it.name}")
+            }
+            outjars(outJars)
 
-                is KotlinAndroidTarget -> {
+        }
+        when (it) {
+            is KotlinJvmTarget -> {
+                val task = tasks.getByName(it.artifactsTaskName)
+                obfuscateOutFile(task)
+            }
 
-                    run {
-                        val original = "$buildDir/outputs/aar/${project.name}-debug.aar"
-                        val originalRenamed =
-                            file("$buildDir/outputs/aar/orig-${project.name}-debug.aar")
-                        originalRenamed.parentFile.mkdirs()
-                        file(original).renameTo(originalRenamed)
-                        injars(originalRenamed)
-                        outjars(file(original))
-                    }
-
-                    run {
-                        val original = "$buildDir/outputs/aar/${project.name}-release.aar"
-                        val originalRenamed =
-                            file("$buildDir/outputs/aar/orig-${project.name}-release.aar")
-                        originalRenamed.parentFile.mkdirs()
-                        file(original).renameTo(originalRenamed)
-                        injars(originalRenamed)
-                        outjars(file(original))
-                    }
-                }
+            is KotlinAndroidTarget -> {
+                val aarTasks = tasks.withType(BundleAar::class)
+                aarTasks.forEach(::obfuscateOutFile)
             }
         }
+    }
+}
 
-    adaptresourcefilenames()
-    adaptresourcefilecontents()
-    optimizationpasses(9)
-    allowaccessmodification()
-    mergeinterfacesaggressively()
+afterEvaluate {
+    tasks.withType(proguard.gradle.ProGuardTask::class) {
+        verbose()
 
-    printseeds("$buildDir/obfuscated/seeds.txt")
-    printmapping("$buildDir/obfuscated/mapping.txt")
-    if (rules.exists()) {
-        configuration(rules)
+        adaptresourcefilenames()
+        adaptresourcefilecontents()
+        optimizationpasses(9)
+        allowaccessmodification()
+        mergeinterfacesaggressively()
+
+        printseeds("$buildDir/obfuscated/seeds.txt")
+        printmapping("$buildDir/obfuscated/mapping.txt")
+        if (rules.exists()) {
+            configuration(rules)
+        }
     }
 }
 

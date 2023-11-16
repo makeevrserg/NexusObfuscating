@@ -4,8 +4,8 @@ import ru.astrainteractive.gradleplugin.util.ProjectProperties.projectInfo
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("publish")
     id("obfuscating")
+    id("publish")
 }
 
 kotlin {
